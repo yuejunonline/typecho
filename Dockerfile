@@ -4,32 +4,25 @@ LABEL "framework"="typecho"
 
 WORKDIR /app
 
-RUN apk add --no-cache \
-    nginx \
-    sqlite \
-    curl \
-    unzip
+RUN apk add --no-cache nginx sqlite curl unzip
 
 COPY . /app
 
-RUN mkdir -p /app/usr/themes/waxy && \
-    chown -R www-data:www-data /app
-
+RUN mkdir -p /app/usr/themes/waxy
+RUN chown -R www-data:www-data /app
 RUN mkdir -p /etc/nginx/conf.d
 
-COPY <<EOF /etc/nginx/conf.d/default.conf
-server {
-    listen 8080;
-    root /app;
-    index index.php;
-    location ~ \.php$ {
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}
-EOF
+RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
+    echo '    listen 8080;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    root /app;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    index index.php;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location ~ \.php$ {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        fastcgi_pass 127.0.0.1:9000;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        fastcgi_index index.php;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        include fastcgi_params;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '}' >> /etc/nginx/conf.d/default.conf
 
 EXPOSE 8080
 
